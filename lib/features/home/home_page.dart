@@ -35,10 +35,30 @@ const _patientTiles = [
 
 const _roleTiles = {
   'doctor': _Tile('', Icons.badge, '/doctor', label: 'Doctor dashboard'),
-  'hospital': _Tile('', Icons.apartment, '/hospital-dash', label: 'Hospital dashboard'),
-  'pharmacy': _Tile('', Icons.storefront, '/pharmacy-dash', label: 'Pharmacy dashboard'),
-  'diagnostic': _Tile('', Icons.biotech, '/diagnostic-dash', label: 'Diagnostic dashboard'),
-  'ambulance': _Tile('', Icons.airport_shuttle, '/ambulance-dash', label: 'Ambulance dashboard'),
+  'hospital': _Tile(
+    '',
+    Icons.apartment,
+    '/hospital-dash',
+    label: 'Hospital dashboard',
+  ),
+  'pharmacy': _Tile(
+    '',
+    Icons.storefront,
+    '/pharmacy-dash',
+    label: 'Pharmacy dashboard',
+  ),
+  'diagnostic': _Tile(
+    '',
+    Icons.biotech,
+    '/diagnostic-dash',
+    label: 'Diagnostic dashboard',
+  ),
+  'ambulance': _Tile(
+    '',
+    Icons.airport_shuttle,
+    '/ambulance-dash',
+    label: 'Ambulance dashboard',
+  ),
 };
 
 class HomePage extends ConsumerWidget {
@@ -52,42 +72,141 @@ class HomePage extends ConsumerWidget {
     final fs = ref.read(fsProvider);
 
     final tiles = <(IconData, String, String)>[
-      if (user != null && _roleTiles[user.role] != null) (_roleTiles[user.role]!.icon, _roleTiles[user.role]!.label!, _roleTiles[user.role]!.route),
-      if (user?.isStaff ?? false) (Icons.admin_panel_settings, 'Admin panel', '/admin'),
+      if (user != null && _roleTiles[user.role] != null)
+        (
+          _roleTiles[user.role]!.icon,
+          _roleTiles[user.role]!.label!,
+          _roleTiles[user.role]!.route,
+        ),
+      if (user?.isStaff ?? false)
+        (Icons.admin_panel_settings, 'Admin panel', '/admin'),
       for (final t in _patientTiles) (t.icon, tr(ref, t.key), t.route),
     ];
 
     final pages = <Widget>[
       user?.deactivated ?? false
-          ? Center(child: FilledButton(onPressed: () => act(context, () => fs.update('users', fs.uid, {'deactivated': false})), child: const Text('Account deactivated. Reactivate')))
-          : ListView(padding: const EdgeInsets.all(16), children: [
-              Text('${tr(ref, 'welcome')}, ${user?.name ?? ''}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 12),
-              InkWell(
-                onTap: () => context.push('/sos'),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: const Color(0xFFFDECEC), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFF3B7B7))),
-                  child: Row(children: [const Icon(Icons.sos, color: Color(0xFFB91C1C)), const SizedBox(width: 10), Text(tr(ref, 'sos'), style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF9B1C1C)))]),
+          ? Center(
+              child: FilledButton(
+                onPressed: () => act(
+                  context,
+                  () => fs.update('users', fs.uid, {'deactivated': false}),
                 ),
+                child: const Text('Account deactivated. Reactivate'),
               ),
-              const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                children: [
-                  for (final t in tiles)
-                    InkWell(
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(
+                  '${tr(ref, 'welcome')}, ${user?.name ?? ''}',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: () => context.push('/sos'),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDECEC),
                       borderRadius: BorderRadius.circular(16),
-                      onTap: () => context.push(t.$3),
-                      child: Card(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(t.$1, color: const Color(0xFF0F766E), size: 30), const SizedBox(height: 6), Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text(t.$2, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)))])),
+                      border: Border.all(color: const Color(0xFFF3B7B7)),
                     ),
-                ],
-              ),
-            ]),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.sos, color: Color(0xFFB91C1C)),
+                        const SizedBox(width: 10),
+                        Text(
+                          tr(ref, 'sos'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF9B1C1C),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GridView.count(
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  children: [
+                    for (final t in tiles)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => context.push(t.$3),
+                        child: Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                t.$1,
+                                color: const Color(0xFF0F766E),
+                                size: 30,
+                              ),
+                              const SizedBox(height: 6),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Text(
+                                  t.$2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Doctors',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => context.push('/doctors'),
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: const Text('See all'),
+                    ),
+                  ],
+                ),
+                DocList(
+                  q: q(
+                    'doctors',
+                    f1: 'status',
+                    v1: 'verified',
+                    limit: 3,
+                    order: 'createdAt',
+                  ),
+                  empty: 'No verified doctors available yet.',
+                  shrink: true,
+                  builder: (context, doctor) => DocCard(
+                    title: doctor.s('name'),
+                    subtitle: doctor.s('specialty'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/book/${doctor.id}'),
+                  ),
+                ),
+              ],
+            ),
       const AppointmentsPage(),
       const NotificationsPage(),
       const ProfilePage(),
@@ -100,10 +219,22 @@ class HomePage extends ConsumerWidget {
         selectedIndex: tab,
         onDestinationSelected: (i) => ref.read(_tabProvider.notifier).state = i,
         destinations: [
-          NavigationDestination(icon: const Icon(Icons.home_outlined), label: tr(ref, 'home')),
-          NavigationDestination(icon: const Icon(Icons.event_outlined), label: tr(ref, 'visits')),
-          NavigationDestination(icon: const Icon(Icons.notifications_outlined), label: tr(ref, 'alerts')),
-          NavigationDestination(icon: const Icon(Icons.person_outline), label: tr(ref, 'profile')),
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            label: tr(ref, 'home'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.event_outlined),
+            label: tr(ref, 'visits'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.notifications_outlined),
+            label: tr(ref, 'alerts'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            label: tr(ref, 'profile'),
+          ),
         ],
       ),
     );
