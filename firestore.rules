@@ -42,7 +42,7 @@ service cloud.firestore {
       allow create: if isOwner(uid) && request.resource.data.status == 'pending';
       allow update: if isOwner(uid) && resource.data.status == 'pending' && request.resource.data.status == 'pending';
       allow update: if isOwner(uid) && resource.data.status == 'verified'
-                    && changed().hasOnly(['fee', 'about', 'hospital', 'experience', 'days', 'startTime', 'endTime', 'slotMinutes', 'updatedAt']);
+                    && changed().hasOnly(['fee', 'about', 'hospital', 'experience', 'days', 'startTime', 'endTime', 'slotMinutes', 'imageUrl', 'imagePath', 'updatedAt']);
       allow update: if has(['verification_admin', 'admin', 'super_admin']);
     }
     match /hospitals/{uid} {

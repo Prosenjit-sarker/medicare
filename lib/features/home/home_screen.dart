@@ -35,10 +35,30 @@ const _patientTiles = [
 
 const _roleTiles = {
   'doctor': _Tile('', Icons.badge, '/doctor', label: 'Doctor dashboard'),
-  'hospital': _Tile('', Icons.apartment, '/hospital-dash', label: 'Hospital dashboard'),
-  'pharmacy': _Tile('', Icons.storefront, '/pharmacy-dash', label: 'Pharmacy dashboard'),
-  'diagnostic': _Tile('', Icons.biotech, '/diagnostic-dash', label: 'Diagnostic dashboard'),
-  'ambulance': _Tile('', Icons.airport_shuttle, '/ambulance-dash', label: 'Ambulance dashboard'),
+  'hospital': _Tile(
+    '',
+    Icons.apartment,
+    '/hospital-dash',
+    label: 'Hospital dashboard',
+  ),
+  'pharmacy': _Tile(
+    '',
+    Icons.storefront,
+    '/pharmacy-dash',
+    label: 'Pharmacy dashboard',
+  ),
+  'diagnostic': _Tile(
+    '',
+    Icons.biotech,
+    '/diagnostic-dash',
+    label: 'Diagnostic dashboard',
+  ),
+  'ambulance': _Tile(
+    '',
+    Icons.airport_shuttle,
+    '/ambulance-dash',
+    label: 'Ambulance dashboard',
+  ),
 };
 
 class HomePage extends ConsumerWidget {
@@ -53,8 +73,13 @@ class HomePage extends ConsumerWidget {
 
     final tiles = <(IconData, String, String)>[
       if (user != null && _roleTiles[user.role] != null)
-        (_roleTiles[user.role]!.icon, _roleTiles[user.role]!.label!, _roleTiles[user.role]!.route),
-      if (user?.isStaff ?? false) (Icons.admin_panel_settings, 'Admin panel', '/admin'),
+        (
+          _roleTiles[user.role]!.icon,
+          _roleTiles[user.role]!.label!,
+          _roleTiles[user.role]!.route,
+        ),
+      if (user?.isStaff ?? false)
+        (Icons.admin_panel_settings, 'Admin panel', '/admin'),
       for (final t in _patientTiles) (t.icon, tr(ref, t.key), t.route),
     ];
 
@@ -62,7 +87,10 @@ class HomePage extends ConsumerWidget {
       user?.deactivated ?? false
           ? Center(
               child: FilledButton(
-                onPressed: () => act(context, () => fs.update('users', fs.uid, {'deactivated': false})),
+                onPressed: () => act(
+                  context,
+                  () => fs.update('users', fs.uid, {'deactivated': false}),
+                ),
                 child: const Text('Account deactivated. Reactivate'),
               ),
             )
@@ -71,7 +99,10 @@ class HomePage extends ConsumerWidget {
               children: [
                 Text(
                   '${tr(ref, 'welcome')}, ${user?.name ?? ''}',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 InkWell(
@@ -89,7 +120,10 @@ class HomePage extends ConsumerWidget {
                         const SizedBox(width: 10),
                         Text(
                           tr(ref, 'sos'),
-                          style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF9B1C1C)),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF9B1C1C),
+                          ),
                         ),
                       ],
                     ),
@@ -111,14 +145,23 @@ class HomePage extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(t.$1, color: const Color(0xFF0F766E), size: 30),
+                              Icon(
+                                t.$1,
+                                color: const Color(0xFF0F766E),
+                                size: 30,
+                              ),
                               const SizedBox(height: 6),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
                                 child: Text(
                                   t.$2,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ],
@@ -133,7 +176,9 @@ class HomePage extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Doctors',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                     TextButton.icon(
@@ -148,12 +193,16 @@ class HomePage extends ConsumerWidget {
                   empty: 'No verified doctors available yet.',
                   shrink: true,
                   builder: (context, doctor) => DocCard(
+                    leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
                     title: doctor.s('name'),
                     subtitle:
                         '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
                         '${doctor.s('hospital')} · ${doctor.n('experience')} yrs · '
                         'BMDC ${doctor.s('bmdc')}',
-                    trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    trailing: Text(
+                      '৳${doctor.n('fee')}',
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                     onTap: () => context.push('/book/${doctor.id}'),
                   ),
                 ),
@@ -171,10 +220,22 @@ class HomePage extends ConsumerWidget {
         selectedIndex: tab,
         onDestinationSelected: (i) => ref.read(_tabProvider.notifier).state = i,
         destinations: [
-          NavigationDestination(icon: const Icon(Icons.home_outlined), label: tr(ref, 'home')),
-          NavigationDestination(icon: const Icon(Icons.event_outlined), label: tr(ref, 'visits')),
-          NavigationDestination(icon: const Icon(Icons.notifications_outlined), label: tr(ref, 'alerts')),
-          NavigationDestination(icon: const Icon(Icons.person_outline), label: tr(ref, 'profile')),
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            label: tr(ref, 'home'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.event_outlined),
+            label: tr(ref, 'visits'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.notifications_outlined),
+            label: tr(ref, 'alerts'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            label: tr(ref, 'profile'),
+          ),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -10,14 +10,27 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'app/app.dart';
 import 'core/services/reminder_service.dart';
 import 'firebase_options.dart';
+import 'supabase_config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    publishableKey: SupabaseConfig.publishableKey,
+    accessToken: () async {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null || !user.emailVerified) return null;
+      return user.getIdToken();
+    },
+  );
 
   // Crashlytics is not available on web. Collect only in release builds; never send patient data.
   if (!kIsWeb) {
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+      !kDebugMode,
+    );
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
