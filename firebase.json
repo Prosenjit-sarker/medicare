@@ -1,0 +1,35 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "medicare-7b559",
+          "appId": "1:822598058351:android:ae8f9ec038d655cdaba89a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "medicare-7b559",
+          "appId": "1:822598058351:ios:b954165a2760c4a2aba89a",
+          "uploadDebugSymbols": true,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "medicare-7b559",
+          "configurations": {
+            "android": "1:822598058351:android:ae8f9ec038d655cdaba89a",
+            "ios": "1:822598058351:ios:b954165a2760c4a2aba89a",
+            "web": "1:822598058351:web:ee387b7dbeaa506caba89a"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
