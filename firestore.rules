@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ---------- helpers ----------
-    function signedIn() { return request.auth != null; }
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
     function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
     function has(roles) { return signedIn() && me().role in roles; }

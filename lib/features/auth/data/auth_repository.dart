@@ -9,27 +9,66 @@ class AuthRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _db;
 
-  Stream<User?> authChanges() => _auth.authStateChanges();
+  Stream<User?> authChanges() => _auth.userChanges();
 
-  Stream<AppUser?> watchUser(String uid) => _db.collection('users').doc(uid).snapshots().map(
-        (s) => s.exists ? AppUser.fromMap(uid, s.data()!) : null,
-      );
+  Stream<AppUser?> watchUser(String uid) =>
+      _db.collection('users').doc(uid).snapshots().map((s) => s.exists ? AppUser.fromMap(uid, s.data()!) : null);
 
   Future<User> register({required String name, required String email, required String password}) async {
     final cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-    // The role is always 'patient' here. Firestore rules reject any other value.
-    await _db.collection('users').doc(cred.user!.uid).set({
-      'name': name,
-      'email': email,
-      'role': 'patient',
-      'createdAt': FieldValue.serverTimestamp(),
-      'consentAt': FieldValue.serverTimestamp(),
-    });
-    return cred.user!;
+    final user = cred.user!;
+    try {
+      await user.updateDisplayName(name);
+      await user.sendEmailVerification();
+    } catch (_) {
+      await _auth.signOut();
+      rethrow;
+    }
+    await _auth.signOut();
+    return user;
   }
 
-  Future<User> login(String email, String password) async =>
-      (await _auth.signInWithEmailAndPassword(email: email, password: password)).user!;
+  Future<User> login(String email, String password) async {
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    try {
+      await _auth.currentUser!.reload();
+    } catch (_) {
+      await _auth.signOut();
+      rethrow;
+    }
+    final user = _auth.currentUser!;
+    if (!user.emailVerified) {
+      await _auth.signOut();
+      throw FirebaseAuthException(code: 'email-not-verified');
+    }
+
+    await user.getIdToken(true);
+    final profile = _db.collection('users').doc(user.uid);
+    if (!(await profile.get()).exists) {
+      await profile.set({
+        'name': user.displayName ?? 'Patient',
+        'email': user.email,
+        'role': 'patient',
+        'createdAt': FieldValue.serverTimestamp(),
+        'consentAt': FieldValue.serverTimestamp(),
+      });
+    }
+    return user;
+  }
+
+  Future<void> resendVerificationEmail({required String email, required String password}) async {
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    try {
+      await _auth.currentUser!.reload();
+      final user = _auth.currentUser!;
+      if (user.emailVerified) {
+        throw FirebaseAuthException(code: 'email-already-verified');
+      }
+      await user.sendEmailVerification();
+    } finally {
+      await _auth.signOut();
+    }
+  }
 
   Future<void> resetPassword(String email) => _auth.sendPasswordResetEmail(email: email);
 
@@ -47,6 +86,14 @@ String friendlyAuthError(Object e) {
         return 'This email is already registered.';
       case 'weak-password':
         return 'Use a password of at least 6 characters.';
+      case 'invalid-email':
+        return 'Enter a valid email address.';
+      case 'email-not-verified':
+        return 'Verify your email before signing in. Check your inbox and spam folder.';
+      case 'email-already-verified':
+        return 'Your email is verified. Sign in to continue.';
+      case 'too-many-requests':
+        return 'Too many attempts from this device. Wait a while before trying again.';
       case 'network-request-failed':
         return 'No internet connection.';
     }
@@ -54,3 +101,6 @@ String friendlyAuthError(Object e) {
   }
   return 'Something went wrong. Please try again.';
 }
+
+bool isValidEmailAddress(String? value) =>
+    value != null && RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value.trim());

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medicare_bd/core/utils/health_utils.dart';
+import 'package:medicare_bd/features/auth/data/auth_repository.dart';
 
 void main() {
   test('bmi is weight / height squared', () {
@@ -16,5 +18,17 @@ void main() {
 
   test('dateKey formats yyyy-MM-dd', () {
     expect(dateKey(DateTime(2026, 11, 1)), '2026-11-01');
+  });
+
+  test('email validation accepts real-looking addresses and rejects malformed ones', () {
+    expect(isValidEmailAddress('patient@gmail.com'), isTrue);
+    expect(isValidEmailAddress('patient@example.org'), isTrue);
+    expect(isValidEmailAddress('not-an-email'), isFalse);
+    expect(isValidEmailAddress('patient@'), isFalse);
+    expect(isValidEmailAddress(null), isFalse);
+  });
+
+  test('auth rate limits have a clear retry message', () {
+    expect(friendlyAuthError(FirebaseAuthException(code: 'too-many-requests')), contains('Wait a while'));
   });
 }

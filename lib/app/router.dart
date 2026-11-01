@@ -43,7 +43,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authStateProvider);
       if (auth.isLoading) return null;
-      final loggedIn = auth.valueOrNull != null;
+      final loggedIn = auth.valueOrNull?.emailVerified ?? false;
       final onAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
       if (!loggedIn) return onAuth ? null : '/login';
       return onAuth ? '/' : null;

@@ -34,10 +34,16 @@ class AuthController extends AutoDisposeAsyncNotifier<void> {
   Future<void> register(String name, String email, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final u = await ref.read(authRepositoryProvider).register(name: name, email: email, password: password);
+      await ref.read(authRepositoryProvider).register(name: name, email: email, password: password);
       await ref.read(analyticsProvider).onSignUp();
-      await ref.read(analyticsProvider).onLogin(u.uid);
     });
+  }
+
+  Future<void> resendVerificationEmail(String email, String password) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(authRepositoryProvider).resendVerificationEmail(email: email, password: password),
+    );
   }
 
   Future<void> reset(String email) async {
