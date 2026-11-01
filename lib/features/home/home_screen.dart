@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/reminder_service.dart';
-import 'package:medicare_bd/features/appointments/appointments_page.dart';
+import 'package:medicare_bd/features/appointments/appointments_screen.dart';
 import 'package:medicare_bd/features/auth/presentation/auth_providers.dart';
-import 'package:medicare_bd/features/profile/profile_page.dart';
-import 'package:medicare_bd/features/support/misc_pages.dart';
+import 'package:medicare_bd/features/profile/profile_screen.dart';
+import 'package:medicare_bd/features/support/misc_screens.dart';
 
 final _tabProvider = StateProvider<int>((_) => 0);
 
