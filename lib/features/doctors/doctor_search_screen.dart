@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicare_bd/core/core.dart';
+import 'package:medicare_bd/features/doctors/doctor_schedule.dart';
 
 class DoctorSearchPage extends ConsumerStatefulWidget {
   const DoctorSearchPage({super.key});
@@ -85,8 +86,7 @@ class _State extends ConsumerState<DoctorSearchPage> {
               builder: (c, d) => DocCard(
                 leading: DoctorAvatar(imageUrl: d.s('imageUrl')),
                 title: d.s('name'),
-                subtitle:
-                    '${d.s('specialty')} · ${d.s('qualifications')}\n${d.s('hospital')} · ${d.n('experience')} yrs',
+                subtitleWidget: DoctorCardSubtitle(doctor: d, selectedDay: _day),
                 trailing: Text('৳${d.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
                 onTap: () => c.push('/book/${d.id}'),
               ),

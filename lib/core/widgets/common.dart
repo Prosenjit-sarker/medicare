@@ -97,6 +97,7 @@ class DocCard extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.subtitleWidget,
     this.leading,
     this.trailing,
     this.onTap,
@@ -104,6 +105,7 @@ class DocCard extends StatelessWidget {
   });
   final String title;
   final String? subtitle;
+  final Widget? subtitleWidget;
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
@@ -118,7 +120,7 @@ class DocCard extends StatelessWidget {
           ListTile(
             leading: leading,
             title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: subtitle == null ? null : Text(subtitle!),
+            subtitle: subtitleWidget ?? (subtitle == null ? null : Text(subtitle!)),
             trailing: trailing,
             onTap: onTap,
           ),

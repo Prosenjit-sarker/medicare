@@ -6,6 +6,7 @@ import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/reminder_service.dart';
 import 'package:medicare_bd/features/appointments/appointments_screen.dart';
 import 'package:medicare_bd/features/auth/presentation/auth_providers.dart';
+import 'package:medicare_bd/features/doctors/doctor_schedule.dart';
 import 'package:medicare_bd/features/profile/profile_screen.dart';
 import 'package:medicare_bd/features/support/misc_screens.dart';
 
@@ -125,9 +126,7 @@ class HomePage extends ConsumerWidget {
                   builder: (context, doctor) => DocCard(
                     leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
                     title: doctor.s('name'),
-                    subtitle:
-                        '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
-                        '${doctor.s('hospital')} · ${doctor.n('experience')} yrs',
+                    subtitleWidget: DoctorCardSubtitle(doctor: doctor),
                     trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
                     onTap: () => context.push('/book/${doctor.id}'),
                   ),

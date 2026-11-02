@@ -9,6 +9,7 @@ import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/consultation_service.dart';
 import 'package:medicare_bd/core/services/supabase_storage_service.dart';
 import 'package:medicare_bd/features/appointments/appointment_repository.dart';
+import 'package:medicare_bd/features/doctors/doctor_schedule.dart';
 import 'package:medicare_bd/features/providers/provider_kinds.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -293,21 +294,31 @@ class _ProfileTab extends ConsumerWidget {
                   children: [
                     OutlinedButton(
                       onPressed: () async {
-                        final v = await showFormSheet(context, 'Availability', [
-                          const FieldSpec('days', 'Working days', kind: FK.multi, options: kWeekdays),
-                          FieldSpec('startTime', 'From', kind: FK.choice, options: genSlots('06:00', '23:30', 30)),
-                          FieldSpec('endTime', 'To', kind: FK.choice, options: genSlots('06:30', '23:59', 30)),
-                          const FieldSpec(
-                            'slotMinutes',
-                            'Minutes per patient',
-                            kind: FK.choice,
-                            options: ['15', '20', '30', '45', '60'],
+                        final current = await fs.get('doctors', uid);
+                        if (!context.mounted) return;
+                        final settings = await showDialog<_AvailabilitySettings>(
+                          context: context,
+                          builder: (_) => _DoctorAvailabilityDialog(
+                            initialSchedule: doctorWeeklySchedule(current ?? const Doc('', {})),
+                            initialSlotMinutes: current?.n('slotMinutes').toInt() ?? 30,
                           ),
-                        ]);
-                        if (v == null || !context.mounted) return;
+                        );
+                        if (settings == null || !context.mounted) return;
+                        final days = kWeekdays.where(settings.weeklySchedule.containsKey).toList();
+                        if (days.isEmpty) {
+                          snack(context, 'Select at least one working day.');
+                          return;
+                        }
+                        final firstHours = settings.weeklySchedule[days.first]!;
                         await act(
                           context,
-                          () => fs.update('doctors', uid, {...v, 'slotMinutes': int.parse(v['slotMinutes'] as String)}),
+                          () => fs.update('doctors', uid, {
+                            'weeklySchedule': settings.weeklySchedule,
+                            'days': days,
+                            'startTime': firstHours['startTime'],
+                            'endTime': firstHours['endTime'],
+                            'slotMinutes': settings.slotMinutes,
+                          }),
                           ok: 'Schedule saved.',
                         );
                       },
@@ -359,6 +370,121 @@ class _ProfileTab extends ConsumerWidget {
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+typedef _AvailabilitySettings = ({Map<String, Map<String, String>> weeklySchedule, int slotMinutes});
+
+class _DoctorAvailabilityDialog extends StatefulWidget {
+  const _DoctorAvailabilityDialog({required this.initialSchedule, required this.initialSlotMinutes});
+
+  final Map<String, Map<String, String>> initialSchedule;
+  final int initialSlotMinutes;
+
+  @override
+  State<_DoctorAvailabilityDialog> createState() => _DoctorAvailabilityDialogState();
+}
+
+class _DoctorAvailabilityDialogState extends State<_DoctorAvailabilityDialog> {
+  late final Map<String, Map<String, String>> _schedule = {
+    for (final entry in widget.initialSchedule.entries) entry.key: Map.of(entry.value),
+  };
+  late int _slotMinutes = [15, 20, 30, 45, 60].contains(widget.initialSlotMinutes) ? widget.initialSlotMinutes : 30;
+
+  TimeOfDay _parseTime(String value) {
+    final parts = value.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  String _storeTime(TimeOfDay value) =>
+      '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+
+  Future<void> _pickTime(String day, String field) async {
+    final current = _schedule[day]![field]!;
+    final picked = await showTimePicker(context: context, initialTime: _parseTime(current));
+    if (picked == null) return;
+    setState(() => _schedule[day]![field] = _storeTime(picked));
+  }
+
+  void _save() {
+    for (final entry in _schedule.entries) {
+      if (entry.value['startTime']!.compareTo(entry.value['endTime']!) >= 0) {
+        snack(context, 'End time must be after start time for ${entry.key}.');
+        return;
+      }
+    }
+    Navigator.pop(context, (weeklySchedule: _schedule, slotMinutes: _slotMinutes));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Weekly availability'),
+      content: SizedBox(
+        width: 420,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.65),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final day in kWeekdays) ...[
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(day),
+                  value: _schedule.containsKey(day),
+                  onChanged: (enabled) => setState(() {
+                    if (enabled) {
+                      _schedule[day] = {'startTime': '09:00', 'endTime': '13:00'};
+                    } else {
+                      _schedule.remove(day);
+                    }
+                  }),
+                ),
+                if (_schedule.containsKey(day))
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _pickTime(day, 'startTime'),
+                          icon: const Icon(Icons.access_time, size: 18),
+                          label: Text('From ${_parseTime(_schedule[day]!['startTime']!).format(context)}'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _pickTime(day, 'endTime'),
+                          icon: const Icon(Icons.access_time, size: 18),
+                          label: Text('To ${_parseTime(_schedule[day]!['endTime']!).format(context)}'),
+                        ),
+                      ),
+                    ],
+                  ),
+                const Divider(height: 12),
+              ],
+              DropdownButtonFormField<int>(
+                initialValue: _slotMinutes,
+                decoration: const InputDecoration(labelText: 'Minutes per patient'),
+                items: [
+                  15,
+                  20,
+                  30,
+                  45,
+                  60,
+                ].map((minutes) => DropdownMenuItem(value: minutes, child: Text('$minutes minutes'))).toList(),
+                onChanged: (minutes) {
+                  if (minutes != null) setState(() => _slotMinutes = minutes);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        FilledButton(onPressed: _save, child: const Text('Save')),
       ],
     );
   }

@@ -7,6 +7,7 @@ import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/analytics_service.dart';
 import 'package:medicare_bd/features/auth/presentation/auth_providers.dart';
 import 'package:medicare_bd/features/doctors/reviews_section.dart';
+import 'package:medicare_bd/features/doctors/doctor_schedule.dart';
 
 import 'appointment_repository.dart';
 
@@ -90,13 +91,16 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         error: (_, _) => const Center(child: Text('Could not load doctor.')),
         data: (d) {
           if (d == null || d.s('status') != 'verified') return const Center(child: Text('Doctor not available.'));
-          final days = d.l('days');
-          final worksToday = days.isEmpty || days.contains(DateFormat('E', 'en').format(_date));
-          final all = genSlots(
-            d.s('startTime').isEmpty ? '09:00' : d.s('startTime'),
-            d.s('endTime').isEmpty ? '13:00' : d.s('endTime'),
-            d.n('slotMinutes') == 0 ? 30 : d.n('slotMinutes').toInt(),
-          );
+          final selectedDay = doctorWeekday(_date);
+          final hours = doctorWeeklySchedule(d)[selectedDay];
+          final worksToday = hours != null;
+          final all = hours == null
+              ? <String>[]
+              : genSlots(
+                  hours['startTime']!,
+                  hours['endTime']!,
+                  d.n('slotMinutes') == 0 ? 30 : d.n('slotMinutes').toInt(),
+                );
           final now = DateTime.now();
           final slots = all
               .where((s) => !(date == todayKey() && s.compareTo(DateFormat('HH:mm').format(now)) <= 0))
