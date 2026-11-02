@@ -22,20 +22,14 @@ class SupabaseStorageService {
     required String contentType,
   }) async {
     final extension = _extensionFor(contentType);
-    final path =
-        '$uid/profile-${DateTime.now().microsecondsSinceEpoch}.$extension';
+    final path = '$uid/profile-${DateTime.now().microsecondsSinceEpoch}.$extension';
     await _client.storage
         .from(doctorAvatarBucket)
-        .uploadBinary(
-          path,
-          bytes,
-          fileOptions: FileOptions(contentType: contentType),
-        );
+        .uploadBinary(path, bytes, fileOptions: FileOptions(contentType: contentType));
     return path;
   }
 
-  String doctorAvatarUrl(String path) =>
-      _client.storage.from(doctorAvatarBucket).getPublicUrl(path);
+  String doctorAvatarUrl(String path) => _client.storage.from(doctorAvatarBucket).getPublicUrl(path);
 
   Future<void> deleteDoctorAvatar(String path) async {
     await _client.storage.from(doctorAvatarBucket).remove([path]);
@@ -51,15 +45,8 @@ class SupabaseStorageService {
     final path = '$ownerUid/${DateTime.now().microsecondsSinceEpoch}_$safeName';
     await _client.storage
         .from(catalogImagesBucket)
-        .uploadBinary(
-          path,
-          bytes,
-          fileOptions: FileOptions(contentType: contentType),
-        );
-    return (
-      path: path,
-      url: _client.storage.from(catalogImagesBucket).getPublicUrl(path),
-    );
+        .uploadBinary(path, bytes, fileOptions: FileOptions(contentType: contentType));
+    return (path: path, url: _client.storage.from(catalogImagesBucket).getPublicUrl(path));
   }
 
   Future<void> deleteCatalogImage(String path) async {
@@ -76,11 +63,7 @@ class SupabaseStorageService {
     final safeName = fileName.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
     final path = '$ownerUid/${DateTime.now().microsecondsSinceEpoch}_$safeName';
     final bucket = _client.storage.from(medicalFilesBucket);
-    await bucket.uploadBinary(
-      path,
-      bytes,
-      fileOptions: FileOptions(contentType: contentType),
-    );
+    await bucket.uploadBinary(path, bytes, fileOptions: FileOptions(contentType: contentType));
     try {
       await _client.from('health_file_access').insert({
         'object_path': path,
@@ -103,14 +86,7 @@ class SupabaseStorageService {
     final path = '$ownerUid/prescriptions/$prescriptionId.pdf';
     await _client.storage
         .from(medicalFilesBucket)
-        .uploadBinary(
-          path,
-          bytes,
-          fileOptions: const FileOptions(
-            contentType: 'application/pdf',
-            upsert: true,
-          ),
-        );
+        .uploadBinary(path, bytes, fileOptions: const FileOptions(contentType: 'application/pdf', upsert: true));
     await _client.from('health_file_access').upsert({
       'object_path': path,
       'owner_uid': ownerUid,
@@ -119,14 +95,8 @@ class SupabaseStorageService {
     return path;
   }
 
-  Future<void> setMedicalFileShares(
-    String path,
-    List<String> sharedWith,
-  ) async {
-    await _client
-        .from('health_file_access')
-        .update({'shared_with': sharedWith})
-        .eq('object_path', path);
+  Future<void> setMedicalFileShares(String path, List<String> sharedWith) async {
+    await _client.from('health_file_access').update({'shared_with': sharedWith}).eq('object_path', path);
   }
 
   Future<String> createMedicalFileUrl(String path) =>

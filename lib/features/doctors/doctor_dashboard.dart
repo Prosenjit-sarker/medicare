@@ -54,8 +54,7 @@ class DoctorDashboard extends ConsumerWidget {
                       label: const Text('Open attachment'),
                       onPressed: () async {
                         try {
-                          final url = await SupabaseStorageService.instance
-                              .createMedicalFileUrl(r.s('attachmentPath'));
+                          final url = await SupabaseStorageService.instance.createMedicalFileUrl(r.s('attachmentPath'));
                           if (c.mounted) await launchUrl(Uri.parse(url));
                         } catch (error) {
                           if (c.mounted) {
@@ -87,20 +86,13 @@ class _Appointments extends ConsumerWidget {
       empty: 'No appointments yet.',
       builder: (c, a) => DocCard(
         title: a.s('patientName'),
-        subtitle:
-            '${a.s('date')} · ${a.s('slot')} · ${a.s('type')} · ${a.s('paymentStatus')}',
+        subtitle: '${a.s('date')} · ${a.s('slot')} · ${a.s('type')} · ${a.s('paymentStatus')}',
         trailing: StatusChip(a.s('status')),
         actions: [
           if (a.s('status') == 'booked' && a.s('type') == 'online')
-            ActionChip(
-              label: const Text('Start call'),
-              onPressed: () => joinConsultation(c, a),
-            ),
+            ActionChip(label: const Text('Start call'), onPressed: () => joinConsultation(c, a)),
           if (a.s('status') != 'cancelled')
-            ActionChip(
-              label: const Text('Chat'),
-              onPressed: () => c.push('/chat/${a.id}'),
-            ),
+            ActionChip(label: const Text('Chat'), onPressed: () => c.push('/chat/${a.id}')),
           if (a.s('status') == 'booked')
             ActionChip(
               label: const Text('Complete'),
@@ -111,9 +103,7 @@ class _Appointments extends ConsumerWidget {
                 if (v != null && c.mounted) {
                   await act(
                     c,
-                    () => ref
-                        .read(appointmentRepositoryProvider)
-                        .complete(a, v['notes'] as String),
+                    () => ref.read(appointmentRepositoryProvider).complete(a, v['notes'] as String),
                     ok: 'Marked completed.',
                   );
                 }
@@ -129,11 +119,7 @@ class _Appointments extends ConsumerWidget {
               label: const Text('Cancel'),
               onPressed: () async {
                 if (await confirm(c, 'Cancel this appointment?') && c.mounted) {
-                  await act(
-                    c,
-                    () => ref.read(appointmentRepositoryProvider).cancel(a),
-                    ok: 'Cancelled.',
-                  );
+                  await act(c, () => ref.read(appointmentRepositoryProvider).cancel(a), ok: 'Cancelled.');
                 }
               },
             ),
@@ -150,15 +136,7 @@ class _Patients extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final all =
-        ref
-            .watch(
-              docsProvider(
-                q('appointments', f1: 'doctorId', v1: uid, limit: 200),
-              ),
-            )
-            .valueOrNull ??
-        [];
+    final all = ref.watch(docsProvider(q('appointments', f1: 'doctorId', v1: uid, limit: 200))).valueOrNull ?? [];
     final byPatient = <String, List<Doc>>{};
     for (final a in all) {
       byPatient.putIfAbsent(a.s('patientId'), () => []).add(a);
@@ -190,28 +168,16 @@ class _Articles extends ConsumerWidget {
         icon: const Icon(Icons.edit),
         label: const Text('Write article'),
         onPressed: () async {
-          final v = await showFormSheet(
-            context,
-            'New article (reviewed before publishing)',
-            const [
-              FieldSpec('title', 'Title'),
-              FieldSpec(
-                'category',
-                'Category',
-                kind: FK.choice,
-                options: [
-                  'General',
-                  'Heart',
-                  'Diabetes',
-                  'Child health',
-                  'Women health',
-                  'Nutrition',
-                  'Mental health',
-                ],
-              ),
-              FieldSpec('body', 'Article', kind: FK.multiline),
-            ],
-          );
+          final v = await showFormSheet(context, 'New article (reviewed before publishing)', const [
+            FieldSpec('title', 'Title'),
+            FieldSpec(
+              'category',
+              'Category',
+              kind: FK.choice,
+              options: ['General', 'Heart', 'Diabetes', 'Child health', 'Women health', 'Nutrition', 'Mental health'],
+            ),
+            FieldSpec('body', 'Article', kind: FK.multiline),
+          ]);
           if (v == null || !context.mounted) return;
           PlatformFile? image;
           try {
@@ -227,8 +193,7 @@ class _Articles extends ConsumerWidget {
           if (image != null) {
             imageBytes = await image.readAsBytes();
             if (!context.mounted) return;
-            if (imageBytes.length >
-                SupabaseStorageService.maxDoctorAvatarBytes) {
+            if (imageBytes.length > SupabaseStorageService.maxDoctorAvatarBytes) {
               snack(context, 'Choose an image smaller than 5 MB.');
               return;
             }
@@ -243,8 +208,7 @@ class _Articles extends ConsumerWidget {
                       ownerUid: uid,
                       fileName: image.name,
                       bytes: imageBytes,
-                      contentType: SupabaseStorageService.instance
-                          .contentTypeFor(image.name),
+                      contentType: SupabaseStorageService.instance.contentTypeFor(image.name),
                     )
                   : null;
               imagePath = uploaded?.path;
@@ -260,9 +224,7 @@ class _Articles extends ConsumerWidget {
             } catch (_) {
               if (imagePath != null) {
                 try {
-                  await SupabaseStorageService.instance.deleteCatalogImage(
-                    imagePath,
-                  );
+                  await SupabaseStorageService.instance.deleteCatalogImage(imagePath);
                 } catch (_) {}
               }
               rethrow;
@@ -273,11 +235,7 @@ class _Articles extends ConsumerWidget {
       body: DocList(
         q: q('health_articles', f1: 'authorId', v1: uid),
         empty: 'You have not written any articles.',
-        builder: (c, a) => DocCard(
-          title: a.s('title'),
-          subtitle: a.s('category'),
-          trailing: StatusChip(a.s('status')),
-        ),
+        builder: (c, a) => DocCard(title: a.s('title'), subtitle: a.s('category'), trailing: StatusChip(a.s('status'))),
       ),
     );
   }
@@ -290,10 +248,7 @@ Future<PlatformFile?> _chooseArticleImage(BuildContext context) async {
       title: const Text('Add an article image?'),
       content: const Text('Choose an optional image, up to 5 MB.'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Skip'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Skip')),
         FilledButton.icon(
           onPressed: () => Navigator.pop(context, true),
           icon: const Icon(Icons.image_outlined),
@@ -314,18 +269,8 @@ class _ProfileTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fs = ref.read(fsProvider);
-    final appts =
-        ref
-            .watch(
-              docsProvider(
-                q('appointments', f1: 'doctorId', v1: uid, limit: 300),
-              ),
-            )
-            .valueOrNull ??
-        [];
-    final earned = appts
-        .where((a) => a.s('paymentStatus') == 'paid')
-        .fold<num>(0, (s, a) => s + a.n('fee'));
+    final appts = ref.watch(docsProvider(q('appointments', f1: 'doctorId', v1: uid, limit: 300))).valueOrNull ?? [];
+    final earned = appts.where((a) => a.s('paymentStatus') == 'paid').fold<num>(0, (s, a) => s + a.n('fee'));
     final done = appts.where((a) => a.s('status') == 'completed').length;
     return Column(
       children: [
@@ -342,35 +287,16 @@ class _ProfileTab extends ConsumerWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
-                ReviewsSection(
-                  targetId: uid,
-                  targetType: 'doctor',
-                  canReview: false,
-                ),
+                ReviewsSection(targetId: uid, targetType: 'doctor', canReview: false),
                 Wrap(
                   spacing: 8,
                   children: [
                     OutlinedButton(
                       onPressed: () async {
                         final v = await showFormSheet(context, 'Availability', [
-                          const FieldSpec(
-                            'days',
-                            'Working days',
-                            kind: FK.multi,
-                            options: kWeekdays,
-                          ),
-                          FieldSpec(
-                            'startTime',
-                            'From',
-                            kind: FK.choice,
-                            options: genSlots('06:00', '23:30', 30),
-                          ),
-                          FieldSpec(
-                            'endTime',
-                            'To',
-                            kind: FK.choice,
-                            options: genSlots('06:30', '23:59', 30),
-                          ),
+                          const FieldSpec('days', 'Working days', kind: FK.multi, options: kWeekdays),
+                          FieldSpec('startTime', 'From', kind: FK.choice, options: genSlots('06:00', '23:30', 30)),
+                          FieldSpec('endTime', 'To', kind: FK.choice, options: genSlots('06:30', '23:59', 30)),
                           const FieldSpec(
                             'slotMinutes',
                             'Minutes per patient',
@@ -381,12 +307,7 @@ class _ProfileTab extends ConsumerWidget {
                         if (v == null || !context.mounted) return;
                         await act(
                           context,
-                          () => fs.update('doctors', uid, {
-                            ...v,
-                            'slotMinutes': int.parse(
-                              v['slotMinutes'] as String,
-                            ),
-                          }),
+                          () => fs.update('doctors', uid, {...v, 'slotMinutes': int.parse(v['slotMinutes'] as String)}),
                           ok: 'Schedule saved.',
                         );
                       },
@@ -400,41 +321,33 @@ class _ProfileTab extends ConsumerWidget {
                             .limit(30)
                             .get();
                         if (!context.mounted) return;
-                        final pick =
-                            await showDialog<
-                              QueryDocumentSnapshot<Map<String, dynamic>>
-                            >(
-                              context: context,
-                              builder: (_) => SimpleDialog(
-                                title: const Text('Request affiliation'),
-                                children: [
-                                  for (final h in hospitals.docs)
-                                    SimpleDialogOption(
-                                      onPressed: () =>
-                                          Navigator.pop(context, h),
-                                      child: Text('${h['name']}'),
-                                    ),
-                                  if (hospitals.docs.isEmpty)
-                                    const Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: Text('No verified hospitals yet.'),
-                                    ),
-                                ],
-                              ),
-                            );
+                        final pick = await showDialog<QueryDocumentSnapshot<Map<String, dynamic>>>(
+                          context: context,
+                          builder: (_) => SimpleDialog(
+                            title: const Text('Request affiliation'),
+                            children: [
+                              for (final h in hospitals.docs)
+                                SimpleDialogOption(
+                                  onPressed: () => Navigator.pop(context, h),
+                                  child: Text('${h['name']}'),
+                                ),
+                              if (hospitals.docs.isEmpty)
+                                const Padding(padding: EdgeInsets.all(16), child: Text('No verified hospitals yet.')),
+                            ],
+                          ),
+                        );
                         if (pick == null || !context.mounted) return;
                         final me = await fs.get('doctors', uid);
                         if (!context.mounted) return;
                         await act(
                           context,
-                          () => fs
-                              .set('affiliation_requests', '${pick.id}_$uid', {
-                                'doctorId': uid,
-                                'doctorName': me?.s('name') ?? '',
-                                'hospitalId': pick.id,
-                                'hospitalName': pick['name'],
-                                'status': 'pending',
-                              }),
+                          () => fs.set('affiliation_requests', '${pick.id}_$uid', {
+                            'doctorId': uid,
+                            'doctorName': me?.s('name') ?? '',
+                            'hospitalId': pick.id,
+                            'hospitalName': pick['name'],
+                            'status': 'pending',
+                          }),
                           ok: 'Request sent.',
                         );
                       },

@@ -47,11 +47,7 @@ class RecordsPage extends ConsumerWidget {
               label: const Text('Delete'),
               onPressed: () async {
                 if (await confirm(c, 'Delete this record?') && c.mounted) {
-                  await act(
-                    c,
-                    () => fs.update('medical_records', r.id, {'deleted': true}),
-                    ok: 'Deleted.',
-                  );
+                  await act(c, () => fs.update('medical_records', r.id, {'deleted': true}), ok: 'Deleted.');
                 }
               },
             ),
@@ -69,14 +65,7 @@ class RecordsPage extends ConsumerWidget {
         'type',
         'Type',
         kind: FK.choice,
-        options: [
-          'Blood test',
-          'X-ray',
-          'MRI / CT',
-          'Prescription',
-          'Discharge summary',
-          'Other',
-        ],
+        options: ['Blood test', 'X-ray', 'MRI / CT', 'Prescription', 'Discharge summary', 'Other'],
       ),
       FieldSpec('date', 'Date', kind: FK.date),
       FieldSpec('notes', 'Result / notes', kind: FK.multiline),
@@ -89,10 +78,7 @@ class RecordsPage extends ConsumerWidget {
         title: const Text('Attach a file?'),
         content: const Text('You can add a PDF or image, up to 20 MB.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Skip'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Skip')),
           FilledButton.icon(
             onPressed: () => Navigator.pop(context, true),
             icon: const Icon(Icons.attach_file),
@@ -133,15 +119,12 @@ class RecordsPage extends ConsumerWidget {
     await act(context, () async {
       String? attachmentPath;
       if (attachment != null && bytes != null) {
-        attachmentPath = await SupabaseStorageService.instance
-            .uploadMedicalFile(
-              ownerUid: fs.uid,
-              fileName: attachment.name,
-              bytes: bytes,
-              contentType: SupabaseStorageService.instance.contentTypeFor(
-                attachment.name,
-              ),
-            );
+        attachmentPath = await SupabaseStorageService.instance.uploadMedicalFile(
+          ownerUid: fs.uid,
+          fileName: attachment.name,
+          bytes: bytes,
+          contentType: SupabaseStorageService.instance.contentTypeFor(attachment.name),
+        );
       }
       try {
         await fs.add('medical_records', {
@@ -151,17 +134,12 @@ class RecordsPage extends ConsumerWidget {
           'deleted': false,
           if (attachment != null) 'attachmentName': attachment.name,
           if (attachment != null) 'attachmentPath': attachmentPath,
-          if (attachment != null)
-            'attachmentType': SupabaseStorageService.instance.contentTypeFor(
-              attachment.name,
-            ),
+          if (attachment != null) 'attachmentType': SupabaseStorageService.instance.contentTypeFor(attachment.name),
         });
       } catch (_) {
         if (attachmentPath != null) {
           try {
-            await SupabaseStorageService.instance.deleteMedicalFile(
-              attachmentPath,
-            );
+            await SupabaseStorageService.instance.deleteMedicalFile(attachmentPath);
           } catch (_) {}
         }
         rethrow;
@@ -171,9 +149,7 @@ class RecordsPage extends ConsumerWidget {
 
   Future<void> _openAttachment(BuildContext context, String path) async {
     try {
-      final url = await SupabaseStorageService.instance.createMedicalFileUrl(
-        path,
-      );
+      final url = await SupabaseStorageService.instance.createMedicalFileUrl(path);
       if (context.mounted) await launchUrl(Uri.parse(url));
     } catch (error) {
       if (context.mounted) snack(context, 'Could not open file: $error');
@@ -183,21 +159,11 @@ class RecordsPage extends ConsumerWidget {
   /// Consent: the patient explicitly picks doctors they have an appointment with.
   Future<void> _share(BuildContext c, WidgetRef ref, Doc r) async {
     final fs = ref.read(fsProvider);
-    final appts = await fs.db
-        .collection('appointments')
-        .where('patientId', isEqualTo: fs.uid)
-        .limit(100)
-        .get();
-    final doctors = <String, String>{
-      for (final a in appts.docs)
-        a['doctorId'] as String: a['doctorName'] as String,
-    };
+    final appts = await fs.db.collection('appointments').where('patientId', isEqualTo: fs.uid).limit(100).get();
+    final doctors = <String, String>{for (final a in appts.docs) a['doctorId'] as String: a['doctorName'] as String};
     if (!c.mounted) return;
     if (doctors.isEmpty) {
-      return snack(
-        c,
-        'Book an appointment first, then you can share with that doctor.',
-      );
+      return snack(c, 'Book an appointment first, then you can share with that doctor.');
     }
     final v = await showFormSheet(c, 'Share "${r.s('title')}"', [
       FieldSpec(
@@ -228,10 +194,7 @@ class RecordsPage extends ConsumerWidget {
         await fs.update('medical_records', r.id, {'sharedWith': ids});
       } catch (_) {
         if (path.isNotEmpty) {
-          await SupabaseStorageService.instance.setMedicalFileShares(
-            path,
-            oldIds,
-          );
+          await SupabaseStorageService.instance.setMedicalFileShares(path, oldIds);
         }
         rethrow;
       }

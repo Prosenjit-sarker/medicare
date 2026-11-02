@@ -6,14 +6,7 @@ import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/supabase_storage_service.dart';
 
 class ProviderKind {
-  const ProviderKind(
-    this.key,
-    this.col,
-    this.role,
-    this.title,
-    this.fields, {
-    this.liveKeys,
-  });
+  const ProviderKind(this.key, this.col, this.role, this.title, this.fields, {this.liveKeys});
   final String key, col, role, title;
   final List<FieldSpec> fields;
 
@@ -45,63 +38,35 @@ final kProviderKinds = <String, ProviderKind>{
     ],
     liveKeys: {'hospital', 'fee', 'about', 'experience'},
   ),
-  'hospital':
-      const ProviderKind('hospital', 'hospitals', 'hospital', 'Hospital', [
-        FieldSpec('name', 'Hospital name'),
-        ..._loc,
-        FieldSpec('phone', 'Phone'),
-        FieldSpec('emergencyPhone', 'Emergency phone'),
-        FieldSpec(
-          'departments',
-          'Departments (comma separated)',
-          kind: FK.multiline,
-        ),
-        FieldSpec(
-          'services',
-          'Services (comma separated)',
-          kind: FK.multiline,
-          required: false,
-        ),
-      ]),
-  'pharmacy':
-      const ProviderKind('pharmacy', 'pharmacies', 'pharmacy', 'Pharmacy', [
-        FieldSpec('name', 'Pharmacy name'),
-        ..._loc,
-        FieldSpec('phone', 'Phone'),
-        FieldSpec('licenseNo', 'Drug licence number'),
-      ]),
-  'diagnostic': const ProviderKind(
-    'diagnostic',
-    'diagnostic_centers',
-    'diagnostic',
-    'Diagnostic center',
-    [
-      FieldSpec('name', 'Center name'),
-      ..._loc,
-      FieldSpec('phone', 'Phone'),
-      FieldSpec('licenseNo', 'Licence number'),
-      FieldSpec('homeCollection', 'Home sample collection', kind: FK.flag),
-    ],
-  ),
-  'ambulance': const ProviderKind(
-    'ambulance',
-    'ambulance_providers',
-    'ambulance',
-    'Ambulance provider',
-    [
-      FieldSpec('name', 'Service name'),
-      FieldSpec('district', 'District', kind: FK.choice, options: kDistricts),
-      FieldSpec('area', 'Area / Thana'),
-      FieldSpec('phone', 'Phone'),
-      FieldSpec(
-        'vehicleType',
-        'Vehicle type',
-        kind: FK.choice,
-        options: ['Basic', 'ICU', 'Freezer'],
-      ),
-      FieldSpec('open24h', 'Open 24 hours', kind: FK.flag),
-    ],
-  ),
+  'hospital': const ProviderKind('hospital', 'hospitals', 'hospital', 'Hospital', [
+    FieldSpec('name', 'Hospital name'),
+    ..._loc,
+    FieldSpec('phone', 'Phone'),
+    FieldSpec('emergencyPhone', 'Emergency phone'),
+    FieldSpec('departments', 'Departments (comma separated)', kind: FK.multiline),
+    FieldSpec('services', 'Services (comma separated)', kind: FK.multiline, required: false),
+  ]),
+  'pharmacy': const ProviderKind('pharmacy', 'pharmacies', 'pharmacy', 'Pharmacy', [
+    FieldSpec('name', 'Pharmacy name'),
+    ..._loc,
+    FieldSpec('phone', 'Phone'),
+    FieldSpec('licenseNo', 'Drug licence number'),
+  ]),
+  'diagnostic': const ProviderKind('diagnostic', 'diagnostic_centers', 'diagnostic', 'Diagnostic center', [
+    FieldSpec('name', 'Center name'),
+    ..._loc,
+    FieldSpec('phone', 'Phone'),
+    FieldSpec('licenseNo', 'Licence number'),
+    FieldSpec('homeCollection', 'Home sample collection', kind: FK.flag),
+  ]),
+  'ambulance': const ProviderKind('ambulance', 'ambulance_providers', 'ambulance', 'Ambulance provider', [
+    FieldSpec('name', 'Service name'),
+    FieldSpec('district', 'District', kind: FK.choice, options: kDistricts),
+    FieldSpec('area', 'Area / Thana'),
+    FieldSpec('phone', 'Phone'),
+    FieldSpec('vehicleType', 'Vehicle type', kind: FK.choice, options: ['Basic', 'ICU', 'Freezer']),
+    FieldSpec('open24h', 'Open 24 hours', kind: FK.flag),
+  ]),
 };
 
 /// Registration / edit card used by every provider type. Status starts as `pending`;
@@ -113,9 +78,7 @@ class ProviderProfileCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fs = ref.read(fsProvider);
-    final doc = ref.watch(
-      docProvider((col: kind.col, id: FirebaseAuth.instance.currentUser!.uid)),
-    );
+    final doc = ref.watch(docProvider((col: kind.col, id: FirebaseAuth.instance.currentUser!.uid)));
     return doc.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, _) => const Center(child: Text('Could not load profile.')),
@@ -136,35 +99,20 @@ class ProviderProfileCard extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            kind.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                          child: Text(kind.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                         ),
                         if (d != null) StatusChip(d.s('status')),
                       ],
                     ),
                     const SizedBox(height: 8),
                     if (d == null)
-                      const Text(
-                        'Not registered yet. Submit your details; an administrator will verify them.',
-                      ),
+                      const Text('Not registered yet. Submit your details; an administrator will verify them.'),
                     if (d != null && !verified)
-                      const Text(
-                        'Waiting for verification. You cannot appear publicly until verified.',
-                      ),
+                      const Text('Waiting for verification. You cannot appear publicly until verified.'),
                     if (d != null)
-                      for (final f in kind.fields.where(
-                        (f) => f.kind != FK.multiline,
-                      ))
+                      for (final f in kind.fields.where((f) => f.kind != FK.multiline))
                         if (d.s(f.key).isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('${f.label}: ${d.s(f.key)}'),
-                          ),
+                          Padding(padding: const EdgeInsets.only(top: 4), child: Text('${f.label}: ${d.s(f.key)}')),
                     const SizedBox(height: 12),
                     FilledButton(
                       onPressed: () async {
@@ -178,14 +126,9 @@ class ProviderProfileCard extends ConsumerWidget {
                         await act(
                           context,
                           () => d == null
-                              ? fs.set(kind.col, fs.uid, {
-                                  ...v,
-                                  'status': 'pending',
-                                })
+                              ? fs.set(kind.col, fs.uid, {...v, 'status': 'pending'})
                               : fs.update(kind.col, fs.uid, v),
-                          ok: d == null
-                              ? 'Submitted for verification.'
-                              : 'Saved.',
+                          ok: d == null ? 'Submitted for verification.' : 'Saved.',
                         );
                       },
                       child: Text(d == null ? 'Apply' : 'Edit'),
@@ -195,11 +138,7 @@ class ProviderProfileCard extends ConsumerWidget {
               ),
             ),
             if (kind.key == 'doctor' && verified)
-              _DoctorPhotoUpload(
-                uid: fs.uid,
-                imageUrl: d?.s('imageUrl') ?? '',
-                imagePath: d?.s('imagePath') ?? '',
-              ),
+              _DoctorPhotoUpload(uid: fs.uid, imageUrl: d?.s('imageUrl') ?? '', imagePath: d?.s('imagePath') ?? ''),
           ],
         );
       },
@@ -208,11 +147,7 @@ class ProviderProfileCard extends ConsumerWidget {
 }
 
 class _DoctorPhotoUpload extends ConsumerStatefulWidget {
-  const _DoctorPhotoUpload({
-    required this.uid,
-    required this.imageUrl,
-    required this.imagePath,
-  });
+  const _DoctorPhotoUpload({required this.uid, required this.imageUrl, required this.imagePath});
 
   final String uid;
   final String imageUrl;
@@ -251,12 +186,8 @@ class _DoctorPhotoUploadState extends ConsumerState<_DoctorPhotoUpload> {
         contentType: _contentType(image),
       );
       final imageUrl = storage.doctorAvatarUrl(imagePath);
-      await ref.read(fsProvider).update('doctors', widget.uid, {
-        'imageUrl': imageUrl,
-        'imagePath': imagePath,
-      });
-      if (widget.imagePath.isNotEmpty &&
-          widget.imagePath.startsWith('${widget.uid}/')) {
+      await ref.read(fsProvider).update('doctors', widget.uid, {'imageUrl': imageUrl, 'imagePath': imagePath});
+      if (widget.imagePath.isNotEmpty && widget.imagePath.startsWith('${widget.uid}/')) {
         try {
           await storage.deleteDoctorAvatar(widget.imagePath);
         } catch (_) {}
@@ -276,13 +207,7 @@ class _DoctorPhotoUploadState extends ConsumerState<_DoctorPhotoUpload> {
     if (mimeType == 'image/jpg' || mimeType == 'image/pjpeg') {
       return 'image/jpeg';
     }
-    if (const {
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-      'image/heic',
-      'image/heif',
-    }.contains(mimeType)) {
+    if (const {'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'}.contains(mimeType)) {
       return mimeType!;
     }
     return SupabaseStorageService.instance.contentTypeFor(image.name);
@@ -301,18 +226,12 @@ class _DoctorPhotoUploadState extends ConsumerState<_DoctorPhotoUpload> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Profile photo',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
+                  const Text('Profile photo', style: TextStyle(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: _uploading ? null : _uploadPhoto,
                     icon: _uploading
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.upload_outlined),
                     label: Text(_uploading ? 'Uploading...' : 'Choose photo'),
                   ),

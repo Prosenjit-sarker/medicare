@@ -18,9 +18,7 @@ class _State extends ConsumerState<DoctorSearchPage> {
 
   bool _match(Doc d) {
     final t = _text.toLowerCase().trim();
-    final hay =
-        '${d.s('name')} ${d.s('specialty')} ${d.s('qualifications')} ${d.s('hospital')}'
-            .toLowerCase();
+    final hay = '${d.s('name')} ${d.s('specialty')} ${d.s('qualifications')} ${d.s('hospital')}'.toLowerCase();
     if (t.isNotEmpty && !hay.contains(t)) {
       return false;
     }
@@ -42,10 +40,7 @@ class _State extends ConsumerState<DoctorSearchPage> {
       appBar: AppBar(title: Text(tr(ref, 'doctors'))),
       body: Column(
         children: [
-          searchBox(
-            (v) => setState(() => _text = v),
-            hint: 'Name, specialty, qualification, hospital',
-          ),
+          searchBox((v) => setState(() => _text = v), hint: 'Name, specialty, qualification, hospital'),
           SizedBox(
             height: 52,
             child: ListView(
@@ -92,10 +87,7 @@ class _State extends ConsumerState<DoctorSearchPage> {
                 title: d.s('name'),
                 subtitle:
                     '${d.s('specialty')} · ${d.s('qualifications')}\n${d.s('hospital')} · ${d.n('experience')} yrs · BMDC ${d.s('bmdc')}',
-                trailing: Text(
-                  '৳${d.n('fee')}',
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
+                trailing: Text('৳${d.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
                 onTap: () => c.push('/book/${d.id}'),
               ),
             ),

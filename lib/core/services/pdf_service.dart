@@ -12,19 +12,12 @@ Future<Uint8List> buildPrescriptionPdf(Doc p) async {
   pdf.addPage(
     pw.MultiPage(
       build: (_) => [
-        pw.Text(
-          'MediCare BD',
-          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Text('MediCare BD', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
         pw.Text('Digital Prescription'),
         pw.Divider(),
-        pw.Text(
-          'Doctor: ${p.s('doctorName')}  (${p.s('doctorSpecialty')}, BMDC ${p.s('doctorBmdc')})',
-        ),
+        pw.Text('Doctor: ${p.s('doctorName')}  (${p.s('doctorSpecialty')}, BMDC ${p.s('doctorBmdc')})'),
         pw.Text('Patient: ${p.s('patientName')}'),
-        pw.Text(
-          'Date: ${p.t('createdAt')?.toIso8601String().substring(0, 10) ?? ''}',
-        ),
+        pw.Text('Date: ${p.t('createdAt')?.toIso8601String().substring(0, 10) ?? ''}'),
         pw.SizedBox(height: 10),
         pw.Text('Diagnosis: ${p.s('diagnosis')}'),
         pw.SizedBox(height: 10),
@@ -43,8 +36,7 @@ Future<Uint8List> buildPrescriptionPdf(Doc p) async {
         ),
         pw.SizedBox(height: 10),
         if (p.s('notes').isNotEmpty) pw.Text('Notes: ${p.s('notes')}'),
-        if (p.s('followUp').isNotEmpty)
-          pw.Text('Follow-up: ${p.s('followUp')}'),
+        if (p.s('followUp').isNotEmpty) pw.Text('Follow-up: ${p.s('followUp')}'),
         pw.SizedBox(height: 20),
         pw.Text(
           'This prescription is immutable. Amendments are issued as a new prescription.',

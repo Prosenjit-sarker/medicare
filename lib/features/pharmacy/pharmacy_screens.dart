@@ -27,10 +27,7 @@ class _State extends ConsumerState<PharmaciesPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.receipt_long),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const OrdersPage()),
-            ),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersPage())),
           ),
           IconButton(
             icon: Badge(
@@ -38,34 +35,23 @@ class _State extends ConsumerState<PharmaciesPage> {
               label: Text('${ref.watch(cartProvider).count}'),
               child: const Icon(Icons.shopping_cart_outlined),
             ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CartPage()),
-            ),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage())),
           ),
         ],
       ),
       body: Column(
         children: [
-          searchBox(
-            (v) => setState(() => _t = v.toLowerCase()),
-            hint: 'Pharmacy, district, area',
-          ),
+          searchBox((v) => setState(() => _t = v.toLowerCase()), hint: 'Pharmacy, district, area'),
           Expanded(
             child: DocList(
               q: q('pharmacies', f1: 'status', v1: 'verified', limit: 60),
               empty: 'No verified pharmacies yet.',
-              filter: (p) => '${p.s('name')} ${p.s('district')} ${p.s('area')}'
-                  .toLowerCase()
-                  .contains(_t),
+              filter: (p) => '${p.s('name')} ${p.s('district')} ${p.s('area')}'.toLowerCase().contains(_t),
               builder: (c, p) => DocCard(
                 title: p.s('name'),
                 subtitle: '${p.s('area')}, ${p.s('district')}',
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
-                  c,
-                  MaterialPageRoute(builder: (_) => PharmacyShopPage(p)),
-                ),
+                onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => PharmacyShopPage(p))),
               ),
             ),
           ),
@@ -94,32 +80,18 @@ class _ShopState extends ConsumerState<PharmacyShopPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CartPage()),
-            ),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage())),
           ),
         ],
       ),
       body: Column(
         children: [
-          searchBox(
-            (v) => setState(() => _t = v.toLowerCase()),
-            hint: 'Brand, generic name, category',
-          ),
+          searchBox((v) => setState(() => _t = v.toLowerCase()), hint: 'Brand, generic name, category'),
           Expanded(
             child: DocList(
-              q: q(
-                'medicines',
-                f1: 'pharmacyId',
-                v1: widget.pharmacy.id,
-                limit: 150,
-              ),
+              q: q('medicines', f1: 'pharmacyId', v1: widget.pharmacy.id, limit: 150),
               empty: 'No medicines listed.',
-              filter: (m) =>
-                  '${m.s('name')} ${m.s('generic')} ${m.s('category')}'
-                      .toLowerCase()
-                      .contains(_t),
+              filter: (m) => '${m.s('name')} ${m.s('generic')} ${m.s('category')}'.toLowerCase().contains(_t),
               builder: (c, m) => DocCard(
                 leading: m.s('imageUrl').isEmpty
                     ? null
@@ -130,10 +102,8 @@ class _ShopState extends ConsumerState<PharmacyShopPage> {
                           width: 56,
                           height: 56,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => const SizedBox.square(
-                            dimension: 56,
-                            child: Icon(Icons.medication_outlined),
-                          ),
+                          errorBuilder: (_, _, _) =>
+                              const SizedBox.square(dimension: 56, child: Icon(Icons.medication_outlined)),
                         ),
                       ),
                 title: '${m.s('name')}${m.b('rx') ? '  (Rx)' : ''}',
@@ -141,9 +111,7 @@ class _ShopState extends ConsumerState<PharmacyShopPage> {
                     '${m.s('generic')} · ${m.s('manufacturer')} · ${m.s('category')}\n৳${m.n('price')} · ${m.n('stock') > 0 ? 'In stock' : 'Out of stock'}${m.b('rx') ? '\nPrescription required: pharmacist will review.' : ''}',
                 trailing: IconButton(
                   icon: const Icon(Icons.add_shopping_cart),
-                  onPressed: m.n('stock') > 0
-                      ? () => ref.read(cartProvider.notifier).add(m)
-                      : null,
+                  onPressed: m.n('stock') > 0 ? () => ref.read(cartProvider.notifier).add(m) : null,
                 ),
               ),
             ),
@@ -161,10 +129,7 @@ class CartPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cart = ref.watch(cartProvider);
     final fs = ref.read(fsProvider);
-    final total = cart.lines.values.fold<num>(
-      0,
-      (s, l) => s + l.med.n('price') * l.qty,
-    );
+    final total = cart.lines.values.fold<num>(0, (s, l) => s + l.med.n('price') * l.qty);
     return Scaffold(
       appBar: AppBar(title: const Text('Cart')),
       body: cart.lines.isEmpty
@@ -181,14 +146,11 @@ class CartPage extends ConsumerWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: () => ref
-                              .read(cartProvider.notifier)
-                              .decrement(l.med.id),
+                          onPressed: () => ref.read(cartProvider.notifier).decrement(l.med.id),
                         ),
                         IconButton(
                           icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () =>
-                              ref.read(cartProvider.notifier).add(l.med),
+                          onPressed: () => ref.read(cartProvider.notifier).add(l.med),
                         ),
                       ],
                     ),
@@ -221,11 +183,7 @@ class CartPage extends ConsumerWidget {
                         : 'Dr. ${latest['doctorName']}: ${(latest['medicines'] as List).map((m) => (m as Map)['name']).join(', ')}';
                     if (!context.mounted) return;
                     final v = await showFormSheet(context, 'Delivery details', [
-                      const FieldSpec(
-                        'address',
-                        'Delivery address',
-                        kind: FK.multiline,
-                      ),
+                      const FieldSpec('address', 'Delivery address', kind: FK.multiline),
                       const FieldSpec('phone', 'Phone'),
                       if (cart.needsRx)
                         FieldSpec(
@@ -243,12 +201,7 @@ class CartPage extends ConsumerWidget {
                         'pharmacyId': cart.pharmacyId,
                         'items': [
                           for (final l in cart.lines.values)
-                            {
-                              'id': l.med.id,
-                              'name': l.med.s('name'),
-                              'qty': l.qty,
-                              'rx': l.med.b('rx'),
-                            },
+                            {'id': l.med.id, 'name': l.med.s('name'), 'qty': l.qty, 'rx': l.med.b('rx')},
                         ],
                         'rxRequired': cart.needsRx,
                         'rxSummary': v['rxSummary'] ?? '',
@@ -281,10 +234,7 @@ class OrdersPage extends ConsumerWidget {
         q: q('medicine_orders', f1: 'patientId', v1: fs.uid),
         empty: 'No orders yet.',
         builder: (c, o) => DocCard(
-          title: o
-              .l('items')
-              .map((i) => '${(i as Map)['name']} ×${i['qty']}')
-              .join(', '),
+          title: o.l('items').map((i) => '${(i as Map)['name']} ×${i['qty']}').join(', '),
           subtitle:
               'Total: ${o.n('total') == 0 ? 'pending confirmation' : '৳${o.n('total')}'} · ${o.s('paymentStatus')}',
           trailing: StatusChip(o.s('status')),
@@ -292,12 +242,7 @@ class OrdersPage extends ConsumerWidget {
             if (o.s('status') == 'placed')
               ActionChip(
                 label: const Text('Cancel'),
-                onPressed: () => act(
-                  c,
-                  () => fs.update('medicine_orders', o.id, {
-                    'status': 'cancelled',
-                  }),
-                ),
+                onPressed: () => act(c, () => fs.update('medicine_orders', o.id, {'status': 'cancelled'})),
               ),
           ],
         ),
@@ -309,16 +254,7 @@ class OrdersPage extends ConsumerWidget {
 class PharmacyDashboard extends ConsumerWidget {
   const PharmacyDashboard({super.key});
 
-  static const _cats = [
-    'Tablet',
-    'Capsule',
-    'Syrup',
-    'Injection',
-    'Ointment',
-    'Drops',
-    'Device',
-    'Other',
-  ];
+  static const _cats = ['Tablet', 'Capsule', 'Syrup', 'Injection', 'Ointment', 'Drops', 'Device', 'Other'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -353,11 +289,7 @@ class PharmacyDashboard extends ConsumerWidget {
                 icon: const Icon(Icons.add),
                 label: const Text('Medicine'),
                 onPressed: () async {
-                  final v = await showFormSheet(
-                    context,
-                    'New medicine',
-                    fields,
-                  );
+                  final v = await showFormSheet(context, 'New medicine', fields);
                   if (v == null || !context.mounted) return;
                   final selected = await _chooseCatalogImage(context);
                   if (!context.mounted) return;
@@ -365,8 +297,7 @@ class PharmacyDashboard extends ConsumerWidget {
                   if (selected != null) {
                     bytes = await selected.readAsBytes();
                     if (!context.mounted) return;
-                    if (bytes.length >
-                        SupabaseStorageService.maxDoctorAvatarBytes) {
+                    if (bytes.length > SupabaseStorageService.maxDoctorAvatarBytes) {
                       snack(context, 'Choose an image smaller than 5 MB.');
                       return;
                     }
@@ -377,14 +308,12 @@ class PharmacyDashboard extends ConsumerWidget {
                     String? imagePath;
                     try {
                       final image = selected != null && bytes != null
-                          ? await SupabaseStorageService.instance
-                                .uploadCatalogImage(
-                                  ownerUid: fs.uid,
-                                  fileName: selected.name,
-                                  bytes: bytes,
-                                  contentType: SupabaseStorageService.instance
-                                      .contentTypeFor(selected.name),
-                                )
+                          ? await SupabaseStorageService.instance.uploadCatalogImage(
+                              ownerUid: fs.uid,
+                              fileName: selected.name,
+                              bytes: bytes,
+                              contentType: SupabaseStorageService.instance.contentTypeFor(selected.name),
+                            )
                           : null;
                       imagePath = image?.path;
                       await fs.add('medicines', {
@@ -397,8 +326,7 @@ class PharmacyDashboard extends ConsumerWidget {
                     } catch (_) {
                       if (imagePath != null) {
                         try {
-                          await SupabaseStorageService.instance
-                              .deleteCatalogImage(imagePath);
+                          await SupabaseStorageService.instance.deleteCatalogImage(imagePath);
                         } catch (_) {}
                       }
                       rethrow;
@@ -419,22 +347,14 @@ class PharmacyDashboard extends ConsumerWidget {
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => const SizedBox.square(
-                              dimension: 56,
-                              child: Icon(Icons.medication_outlined),
-                            ),
+                            errorBuilder: (_, _, _) =>
+                                const SizedBox.square(dimension: 56, child: Icon(Icons.medication_outlined)),
                           ),
                         ),
                   title: '${m.s('name')}${m.b('rx') ? ' (Rx)' : ''}',
-                  subtitle:
-                      '${m.s('generic')} · ৳${m.n('price')} · stock ${m.n('stock')}',
+                  subtitle: '${m.s('generic')} · ৳${m.n('price')} · stock ${m.n('stock')}',
                   onTap: () async {
-                    final v = await showFormSheet(
-                      c,
-                      'Edit medicine',
-                      fields,
-                      initial: m.d,
-                    );
+                    final v = await showFormSheet(c, 'Edit medicine', fields, initial: m.d);
                     if (v == null || !c.mounted) return;
                     final selected = await _chooseCatalogImage(c);
                     if (!c.mounted) return;
@@ -442,8 +362,7 @@ class PharmacyDashboard extends ConsumerWidget {
                     if (selected != null) {
                       bytes = await selected.readAsBytes();
                       if (!c.mounted) return;
-                      if (bytes.length >
-                          SupabaseStorageService.maxDoctorAvatarBytes) {
+                      if (bytes.length > SupabaseStorageService.maxDoctorAvatarBytes) {
                         snack(c, 'Choose an image smaller than 5 MB.');
                         return;
                       }
@@ -452,14 +371,12 @@ class PharmacyDashboard extends ConsumerWidget {
                       String? imagePath;
                       try {
                         final image = selected != null && bytes != null
-                            ? await SupabaseStorageService.instance
-                                  .uploadCatalogImage(
-                                    ownerUid: fs.uid,
-                                    fileName: selected.name,
-                                    bytes: bytes,
-                                    contentType: SupabaseStorageService.instance
-                                        .contentTypeFor(selected.name),
-                                  )
+                            ? await SupabaseStorageService.instance.uploadCatalogImage(
+                                ownerUid: fs.uid,
+                                fileName: selected.name,
+                                bytes: bytes,
+                                contentType: SupabaseStorageService.instance.contentTypeFor(selected.name),
+                              )
                             : null;
                         imagePath = image?.path;
                         await fs.update('medicines', m.id, {
@@ -470,8 +387,7 @@ class PharmacyDashboard extends ConsumerWidget {
                       } catch (_) {
                         if (imagePath != null) {
                           try {
-                            await SupabaseStorageService.instance
-                                .deleteCatalogImage(imagePath);
+                            await SupabaseStorageService.instance.deleteCatalogImage(imagePath);
                           } catch (_) {}
                         }
                         rethrow;
@@ -489,10 +405,7 @@ class PharmacyDashboard extends ConsumerWidget {
               q: q('medicine_orders', f1: 'pharmacyId', v1: fs.uid, limit: 100),
               empty: 'No orders yet.',
               builder: (c, o) => DocCard(
-                title: o
-                    .l('items')
-                    .map((i) => '${(i as Map)['name']} ×${i['qty']}')
-                    .join(', '),
+                title: o.l('items').map((i) => '${(i as Map)['name']} ×${i['qty']}').join(', '),
                 subtitle:
                     '${o.s('address')} · ${o.s('phone')}${o.b('rxRequired') ? '\nRx review: ${o.s('rxSummary')}' : ''}\nTotal: ${o.n('total') == 0 ? 'not set' : '৳${o.n('total')}'}',
                 trailing: StatusChip(o.s('status')),
@@ -507,43 +420,25 @@ class PharmacyDashboard extends ConsumerWidget {
                         if (v != null && c.mounted) {
                           await act(
                             c,
-                            () => fs.update('medicine_orders', o.id, {
-                              'status': 'confirmed',
-                              'total': v['total'],
-                            }),
+                            () => fs.update('medicine_orders', o.id, {'status': 'confirmed', 'total': v['total']}),
                           );
                         }
                       },
                     ),
                     ActionChip(
                       label: const Text('Reject'),
-                      onPressed: () => act(
-                        c,
-                        () => fs.update('medicine_orders', o.id, {
-                          'status': 'rejected',
-                        }),
-                      ),
+                      onPressed: () => act(c, () => fs.update('medicine_orders', o.id, {'status': 'rejected'})),
                     ),
                   ],
                   if (o.s('status') == 'confirmed')
                     ActionChip(
                       label: const Text('Out for delivery'),
-                      onPressed: () => act(
-                        c,
-                        () => fs.update('medicine_orders', o.id, {
-                          'status': 'out_for_delivery',
-                        }),
-                      ),
+                      onPressed: () => act(c, () => fs.update('medicine_orders', o.id, {'status': 'out_for_delivery'})),
                     ),
                   if (o.s('status') == 'out_for_delivery')
                     ActionChip(
                       label: const Text('Delivered'),
-                      onPressed: () => act(
-                        c,
-                        () => fs.update('medicine_orders', o.id, {
-                          'status': 'delivered',
-                        }),
-                      ),
+                      onPressed: () => act(c, () => fs.update('medicine_orders', o.id, {'status': 'delivered'})),
                     ),
                 ],
               ),
@@ -562,10 +457,7 @@ Future<PlatformFile?> _chooseCatalogImage(BuildContext context) async {
       title: const Text('Add a product image?'),
       content: const Text('Choose an optional image, up to 5 MB.'),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Skip'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Skip')),
         FilledButton.icon(
           onPressed: () => Navigator.pop(context, true),
           icon: const Icon(Icons.image_outlined),
