@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicare_bd/app/theme.dart';
 import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/reminder_service.dart';
 import 'package:medicare_bd/features/appointments/appointments_screen.dart';
@@ -69,94 +70,68 @@ class HomePage extends ConsumerWidget {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text(
-                  '${tr(ref, 'welcome')}, ${user?.name ?? ''}',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () => context.push('/sos'),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFDECEC),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFF3B7B7)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.sos, color: Color(0xFFB91C1C)),
-                        const SizedBox(width: 10),
-                        Text(
-                          tr(ref, 'sos'),
-                          style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF9B1C1C)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  children: [
-                    for (final t in tiles)
-                      InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => context.push(t.$3),
-                        child: Card(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(t.$1, color: const Color(0xFF0F766E), size: 30),
-                              const SizedBox(height: 6),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Text(
-                                  t.$2,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    crossAxisCount: 4,
+                    childAspectRatio: 1.3,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 6,
+                    crossAxisSpacing: 6,
+                    children: [
+                      for (final t in tiles)
+                        InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => context.push(t.$3),
+                          child: Card(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(t.$1, color: const Color(0xFF0F766E), size: 22),
+                                const SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Text(
+                                    t.$2,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Doctors',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => context.push('/doctors'),
-                      icon: const Icon(Icons.arrow_forward, size: 18),
-                      label: const Text('See all'),
-                    ),
-                  ],
-                ),
-                DocList(
-                  q: q('doctors', f1: 'status', v1: 'verified', limit: 3),
-                  empty: 'No verified doctors available yet.',
-                  shrink: true,
-                  builder: (context, doctor) => DocCard(
-                    leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
-                    title: doctor.s('name'),
-                    subtitle:
-                        '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
-                        '${doctor.s('hospital')} · ${doctor.n('experience')} yrs · '
-                        'BMDC ${doctor.s('bmdc')}',
-                    trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
-                    onTap: () => context.push('/book/${doctor.id}'),
+                    ],
                   ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Doctors',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => context.push('/doctors'),
+                        icon: const Icon(Icons.arrow_forward, size: 18),
+                        label: const Text('See all'),
+                      ),
+                    ],
+                  ),
+                DocList(
+                    q: q('doctors', f1: 'status', v1: 'verified', limit: 3),
+                    empty: 'No verified doctors available yet.',
+                    shrink: true,
+                    builder: (context, doctor) => DocCard(
+                      leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
+                      title: doctor.s('name'),
+                      subtitle:
+                          '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
+                          '${doctor.s('hospital')} · ${doctor.n('experience')} yrs · '
+                          'BMDC ${doctor.s('bmdc')}',
+                      trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                      onTap: () => context.push('/book/${doctor.id}'),
+                    ),
                 ),
               ],
             ),
@@ -166,7 +141,74 @@ class HomePage extends ConsumerWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('MediCare BD')),
+      appBar: AppBar(
+        toolbarHeight: 76,
+        titleSpacing: 16,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [kPrimary, kTeal],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+        title: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(255, 255, 255, 0.16),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.health_and_safety_outlined, size: 26),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'MediCare BD',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  ),
+                  Text(
+                    user?.name.isNotEmpty == true ? '${tr(ref, 'welcome')}, ${user!.name}' : tr(ref, 'home'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: Color.fromRGBO(255, 255, 255, 0.82)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              tooltip: tr(ref, 'sos'),
+              onPressed: () => context.push('/sos'),
+              style: IconButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromRGBO(255, 255, 255, 0.16),
+                fixedSize: const Size(44, 44),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              icon: const Icon(Icons.sos_outlined),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(child: pages[tab]),
       bottomNavigationBar: NavigationBar(
         selectedIndex: tab,
