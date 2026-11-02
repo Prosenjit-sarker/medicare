@@ -52,6 +52,20 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final verificationEmail = _verificationEmail;
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.go('/login'),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to sign in',
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.health_and_safety_outlined, size: 22),
+            const SizedBox(width: 8),
+            Text(verificationEmail == null ? 'Create account' : 'Verify email'),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -62,13 +76,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        IconButton(
-                          alignment: Alignment.centerLeft,
-                          onPressed: () => context.go('/login'),
-                          icon: const Icon(Icons.arrow_back),
-                          tooltip: 'Back to sign in',
-                        ),
-                        const SizedBox(height: 36),
                         Icon(Icons.mark_email_read_outlined, size: 58, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(height: 24),
                         Text(
@@ -121,21 +128,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          IconButton(
-                            alignment: Alignment.centerLeft,
-                            onPressed: () => context.go('/login'),
-                            icon: const Icon(Icons.arrow_back),
-                            tooltip: 'Back to sign in',
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'MediCare BD',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
                           Text(
                             'Create your account',
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),

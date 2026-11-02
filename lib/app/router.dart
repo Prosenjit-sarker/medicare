@@ -11,6 +11,7 @@ import 'package:medicare_bd/features/articles/articles_screen.dart';
 import 'package:medicare_bd/features/auth/presentation/auth_providers.dart';
 import 'package:medicare_bd/features/auth/presentation/login_screen.dart';
 import 'package:medicare_bd/features/auth/presentation/register_screen.dart';
+import 'package:medicare_bd/features/auth/presentation/welcome_screen.dart';
 import 'package:medicare_bd/features/blood/blood_screen.dart';
 import 'package:medicare_bd/features/diagnostics/diagnostics_screens.dart';
 import 'package:medicare_bd/features/doctors/doctor_dashboard.dart';
@@ -37,19 +38,23 @@ GoRoute _r(String path, Widget Function(GoRouterState) b) => GoRoute(path: path,
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = _AuthRefresh(ref);
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/welcome',
     refreshListenable: refresh,
     observers: [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)],
     redirect: (context, state) {
       final auth = ref.read(authStateProvider);
       if (auth.isLoading) return null;
       final loggedIn = auth.valueOrNull?.emailVerified ?? false;
-      final onAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-      if (!loggedIn) return onAuth ? null : '/login';
-      return onAuth ? '/' : null;
+      final onEntry =
+          state.matchedLocation == '/welcome' ||
+          state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+      if (!loggedIn) return onEntry ? null : '/welcome';
+      return onEntry ? '/' : null;
     },
     routes: [
       _r('/', (_) => const HomePage()),
+      _r('/welcome', (_) => const WelcomePage()),
       _r('/login', (_) => const LoginPage()),
       _r('/register', (_) => const RegisterPage()),
       _r('/doctors', (_) => const DoctorSearchPage()),

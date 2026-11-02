@@ -76,6 +76,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final loading = ref.watch(authControllerProvider).isLoading;
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.go('/welcome'),
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back to welcome',
+        ),
+        title: const Row(
+          children: [Icon(Icons.health_and_safety_outlined, size: 22), SizedBox(width: 8), Text('Sign in')],
+        ),
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -87,29 +97,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      height: 58,
-                      width: 58,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Icon(
-                        Icons.health_and_safety_outlined,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 26),
-                    Text(
-                      'MediCare BD',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     Text(
                       'Welcome back',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
