@@ -68,70 +68,69 @@ class HomePage extends ConsumerWidget {
               ),
             )
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               children: [
                 GridView.count(
-                    crossAxisCount: 4,
-                    childAspectRatio: 1.3,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 6,
-                    crossAxisSpacing: 6,
-                    children: [
-                      for (final t in tiles)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () => context.push(t.$3),
-                          child: Card(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(t.$1, color: const Color(0xFF0F766E), size: 22),
-                                const SizedBox(height: 4),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  child: Text(
-                                    t.$2,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                                  ),
+                  crossAxisCount: 4,
+                  childAspectRatio: 1.3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 6,
+                  crossAxisSpacing: 6,
+                  children: [
+                    for (final t in tiles)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => context.push(t.$3),
+                        child: Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(t.$1, color: const Color(0xFF0F766E), size: 22),
+                              const SizedBox(height: 4),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: Text(
+                                  t.$2,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Doctors',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                        ),
                       ),
-                      TextButton.icon(
-                        onPressed: () => context.push('/doctors'),
-                        icon: const Icon(Icons.arrow_forward, size: 18),
-                        label: const Text('See all'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Doctors',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                       ),
-                    ],
-                  ),
-                DocList(
-                    q: q('doctors', f1: 'status', v1: 'verified', limit: 3),
-                    empty: 'No verified doctors available yet.',
-                    shrink: true,
-                    builder: (context, doctor) => DocCard(
-                      leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
-                      title: doctor.s('name'),
-                      subtitle:
-                          '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
-                          '${doctor.s('hospital')} · ${doctor.n('experience')} yrs · '
-                          'BMDC ${doctor.s('bmdc')}',
-                      trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
-                      onTap: () => context.push('/book/${doctor.id}'),
                     ),
+                    TextButton.icon(
+                      onPressed: () => context.push('/doctors'),
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: const Text('See all'),
+                    ),
+                  ],
+                ),
+                DocList(
+                  q: q('doctors', f1: 'status', v1: 'verified', limit: 3),
+                  empty: 'No verified doctors available yet.',
+                  shrink: true,
+                  builder: (context, doctor) => DocCard(
+                    leading: DoctorAvatar(imageUrl: doctor.s('imageUrl')),
+                    title: doctor.s('name'),
+                    subtitle:
+                        '${doctor.s('specialty')} · ${doctor.s('qualifications')}\n'
+                        '${doctor.s('hospital')} · ${doctor.n('experience')} yrs',
+                    trailing: Text('৳${doctor.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    onTap: () => context.push('/book/${doctor.id}'),
+                  ),
                 ),
               ],
             ),

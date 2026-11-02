@@ -88,7 +88,7 @@ class ProviderProfileCard extends ConsumerWidget {
             ? kind.fields.where((f) => kind.liveKeys!.contains(f.key)).toList()
             : kind.fields;
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           children: [
             Card(
               child: Padding(

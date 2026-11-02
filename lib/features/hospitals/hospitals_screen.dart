@@ -48,7 +48,7 @@ class HospitalDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text(h.s('name'))),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
+      body: ListView(padding: const EdgeInsets.all(12), children: [
         Text('${h.s('address')}, ${h.s('area')}, ${h.s('district')}'),
         const SizedBox(height: 8),
         Wrap(spacing: 8, children: [
@@ -97,7 +97,7 @@ class HospitalDashboard extends ConsumerWidget {
               ],
             ),
           ),
-          ListView(padding: const EdgeInsets.all(16), children: [ReviewsSection(targetId: fs.uid, targetType: 'hospital', canReview: false)]),
+          ListView(padding: const EdgeInsets.all(12), children: [ReviewsSection(targetId: fs.uid, targetType: 'hospital', canReview: false)]),
         ]),
       ),
     );

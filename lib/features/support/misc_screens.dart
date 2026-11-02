@@ -56,7 +56,7 @@ class SosPage extends ConsumerWidget {
     final me = ref.watch(docProvider((col: 'patients', id: fs.uid))).valueOrNull;
     return Scaffold(
       appBar: AppBar(title: Text(tr(ref, 'sos'))),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
+      body: ListView(padding: const EdgeInsets.all(12), children: [
         for (final n in kEmergencyNumbers)
           Padding(padding: const EdgeInsets.only(bottom: 12), child: FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: const Color(0xFFB91C1C), minimumSize: const Size.fromHeight(64)), icon: const Icon(Icons.call), label: Text('${n.$1}: ${n.$2}', style: const TextStyle(fontSize: 18)), onPressed: () => callNumber(context, n.$2))),
         if (me != null && me.s('emergencyPhone').isNotEmpty)

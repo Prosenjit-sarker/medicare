@@ -65,7 +65,7 @@ class _State extends ConsumerState<PrescriptionWritePage> {
       appBar: AppBar(title: Text('Prescription · ${widget.appt.s('patientName')}')),
       body: Form(
         key: _form,
-        child: ListView(padding: const EdgeInsets.all(20), children: [
+        child: ListView(padding: const EdgeInsets.all(12), children: [
           TextFormField(controller: _dx, decoration: const InputDecoration(labelText: 'Diagnosis'), validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null),
           const SizedBox(height: 12),
           for (var i = 0; i < _meds.length; i++)

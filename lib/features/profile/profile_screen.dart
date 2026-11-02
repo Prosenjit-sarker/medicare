@@ -29,7 +29,7 @@ class ProfilePage extends ConsumerWidget {
     final fs = ref.read(fsProvider);
     final user = ref.watch(appUserProvider).valueOrNull;
     final prof = ref.watch(docProvider((col: 'patients', id: fs.uid))).valueOrNull;
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: const EdgeInsets.all(12), children: [
       Card(child: ListTile(title: Text(user?.name ?? ''), subtitle: Text('${user?.email ?? ''}\nRole: ${user?.role ?? 'patient'}'), isThreeLine: true)),
       Card(
         child: ListTile(

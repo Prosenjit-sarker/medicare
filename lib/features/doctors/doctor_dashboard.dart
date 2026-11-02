@@ -276,7 +276,7 @@ class _ProfileTab extends ConsumerWidget {
       children: [
         Expanded(child: ProviderProfileCard(kProviderKinds['doctor']!)),
         Card(
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(12),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -332,7 +332,7 @@ class _ProfileTab extends ConsumerWidget {
                                   child: Text('${h['name']}'),
                                 ),
                               if (hospitals.docs.isEmpty)
-                                const Padding(padding: EdgeInsets.all(16), child: Text('No verified hospitals yet.')),
+                                const Padding(padding: EdgeInsets.all(12), child: Text('No verified hospitals yet.')),
                             ],
                           ),
                         );

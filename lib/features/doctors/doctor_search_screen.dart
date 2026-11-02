@@ -86,7 +86,7 @@ class _State extends ConsumerState<DoctorSearchPage> {
                 leading: DoctorAvatar(imageUrl: d.s('imageUrl')),
                 title: d.s('name'),
                 subtitle:
-                    '${d.s('specialty')} · ${d.s('qualifications')}\n${d.s('hospital')} · ${d.n('experience')} yrs · BMDC ${d.s('bmdc')}',
+                    '${d.s('specialty')} · ${d.s('qualifications')}\n${d.s('hospital')} · ${d.n('experience')} yrs',
                 trailing: Text('৳${d.n('fee')}', style: const TextStyle(fontWeight: FontWeight.w800)),
                 onTap: () => c.push('/book/${d.id}'),
               ),

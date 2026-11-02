@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medicare_bd/core/core.dart';
 import 'package:medicare_bd/core/services/pdf_service.dart';
 
-
 class PrescriptionsPage extends ConsumerWidget {
   const PrescriptionsPage({super.key});
 
@@ -34,9 +33,16 @@ class PrescriptionDetailPage extends ConsumerWidget {
     final f = '${m['frequency']}';
     final days = (m['durationDays'] as num?)?.toInt() ?? 7;
     return {
-      'userId': uid, 'name': '${m['name']}', 'dose': '${m['dose']}', 'source': 'prescription', 'prescriptionId': p.id,
-      'morning': !f.startsWith('Night'), 'afternoon': f.startsWith('Three'), 'night': f.startsWith('Twice') || f.startsWith('Three') || f.startsWith('Night'),
-      'startDate': todayKey(), 'endDate': dateKey(DateTime.now().add(Duration(days: days))),
+      'userId': uid,
+      'name': '${m['name']}',
+      'dose': '${m['dose']}',
+      'source': 'prescription',
+      'prescriptionId': p.id,
+      'morning': !f.startsWith('Night'),
+      'afternoon': f.startsWith('Three'),
+      'night': f.startsWith('Twice') || f.startsWith('Three') || f.startsWith('Night'),
+      'startDate': todayKey(),
+      'endDate': dateKey(DateTime.now().add(Duration(days: days))),
     };
   }
 
@@ -46,35 +52,55 @@ class PrescriptionDetailPage extends ConsumerWidget {
     final meds = p.l('medicines').cast<Map>();
     return Scaffold(
       appBar: AppBar(title: const Text('Prescription')),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
-        Text('Dr. ${p.s('doctorName')}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-        Text('${p.s('doctorSpecialty')} · BMDC ${p.s('doctorBmdc')}'),
-        const SizedBox(height: 8),
-        Text('Patient: ${p.s('patientName')}'),
-        Text('Diagnosis: ${p.s('diagnosis')}'),
-        const SizedBox(height: 12),
-        for (final m in meds) Card(child: ListTile(title: Text('${m['name']} ${m['dose']}'), subtitle: Text('${m['frequency']} · ${m['durationDays']} days\n${m['instructions'] ?? ''}'))),
-        if (p.s('notes').isNotEmpty) Text('Notes: ${p.s('notes')}'),
-        if (p.s('followUp').isNotEmpty) Text('Follow-up: ${p.s('followUp')}'),
-        const SizedBox(height: 16),
-        FilledButton.icon(icon: const Icon(Icons.picture_as_pdf), label: const Text('View / print PDF'), onPressed: () => act(context, () => printPrescription(p))),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(icon: const Icon(Icons.share), label: const Text('Share PDF'), onPressed: () => act(context, () => sharePrescription(p))),
-        if (p.s('patientId') == fs.uid) ...[
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: [
+          Text('Dr. ${p.s('doctorName')}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(p.s('doctorSpecialty')),
+          const SizedBox(height: 8),
+          Text('Patient: ${p.s('patientName')}'),
+          Text('Diagnosis: ${p.s('diagnosis')}'),
+          const SizedBox(height: 12),
+          for (final m in meds)
+            Card(
+              child: ListTile(
+                title: Text('${m['name']} ${m['dose']}'),
+                subtitle: Text('${m['frequency']} · ${m['durationDays']} days\n${m['instructions'] ?? ''}'),
+              ),
+            ),
+          if (p.s('notes').isNotEmpty) Text('Notes: ${p.s('notes')}'),
+          if (p.s('followUp').isNotEmpty) Text('Follow-up: ${p.s('followUp')}'),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text('View / print PDF'),
+            onPressed: () => act(context, () => printPrescription(p)),
+          ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            icon: const Icon(Icons.alarm_add),
-            label: const Text('Add medicines to reminders'),
-            onPressed: () => act(context, () async {
-              final b = fs.db.batch();
-              for (final m in meds) {
-                b.set(fs.db.collection('medicine_reminders').doc(), {..._reminder(fs.uid, m), 'createdAt': FirestoreService.now});
-              }
-              await b.commit();
-            }, ok: 'Reminders added.'),
+            icon: const Icon(Icons.share),
+            label: const Text('Share PDF'),
+            onPressed: () => act(context, () => sharePrescription(p)),
           ),
+          if (p.s('patientId') == fs.uid) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.alarm_add),
+              label: const Text('Add medicines to reminders'),
+              onPressed: () => act(context, () async {
+                final b = fs.db.batch();
+                for (final m in meds) {
+                  b.set(fs.db.collection('medicine_reminders').doc(), {
+                    ..._reminder(fs.uid, m),
+                    'createdAt': FirestoreService.now,
+                  });
+                }
+                await b.commit();
+              }, ok: 'Reminders added.'),
+            ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }

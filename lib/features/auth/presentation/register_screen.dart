@@ -55,7 +55,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            padding: const EdgeInsets.all(12),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
               child: verificationEmail != null

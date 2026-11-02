@@ -15,7 +15,7 @@ Future<Uint8List> buildPrescriptionPdf(Doc p) async {
         pw.Text('MediCare BD', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
         pw.Text('Digital Prescription'),
         pw.Divider(),
-        pw.Text('Doctor: ${p.s('doctorName')}  (${p.s('doctorSpecialty')}, BMDC ${p.s('doctorBmdc')})'),
+        pw.Text('Doctor: ${p.s('doctorName')}  (${p.s('doctorSpecialty')})'),
         pw.Text('Patient: ${p.s('patientName')}'),
         pw.Text('Date: ${p.t('createdAt')?.toIso8601String().substring(0, 10) ?? ''}'),
         pw.SizedBox(height: 10),

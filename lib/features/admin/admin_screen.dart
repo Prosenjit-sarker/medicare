@@ -69,7 +69,7 @@ class _Overview extends ConsumerWidget {
     final fs = ref.read(fsProvider);
     const cols = ['users', 'doctors', 'hospitals', 'pharmacies', 'diagnostic_centers', 'ambulance_providers', 'appointments', 'medicine_orders', 'test_bookings', 'blood_requests', 'payments'];
     return GridView.count(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       crossAxisCount: MediaQuery.of(context).size.width >= 800 ? 4 : 2,
       childAspectRatio: 1.8,
       children: [
@@ -99,7 +99,7 @@ class _Verification extends ConsumerWidget {
 
     return ListView(children: [
       for (final k in kProviderKinds.values) ...[
-        Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 0), child: Text('${k.title}s awaiting verification', style: const TextStyle(fontWeight: FontWeight.w800))),
+        Padding(padding: const EdgeInsets.fromLTRB(12, 12, 12, 0), child: Text('${k.title}s awaiting verification', style: const TextStyle(fontWeight: FontWeight.w800))),
         DocList(
           q: q(k.col, f1: 'status', v1: 'pending'),
           shrink: true,
@@ -180,7 +180,7 @@ class _Content extends ConsumerWidget {
     }
 
     return ListView(children: [
-      const Padding(padding: EdgeInsets.all(16), child: Text('Articles awaiting medical review', style: TextStyle(fontWeight: FontWeight.w800))),
+      const Padding(padding: EdgeInsets.all(12), child: Text('Articles awaiting medical review', style: TextStyle(fontWeight: FontWeight.w800))),
       DocList(
         q: q('health_articles', f1: 'status', v1: 'pending'),
         shrink: true,
@@ -198,7 +198,7 @@ class _Content extends ConsumerWidget {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Row(children: [
           const Expanded(child: Text('Announcements', style: TextStyle(fontWeight: FontWeight.w800))),
           FilledButton(onPressed: () async {
@@ -331,7 +331,7 @@ class _Settings extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fs = ref.read(fsProvider);
     final s = ref.watch(docProvider((col: 'app_settings', id: 'general'))).valueOrNull;
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: const EdgeInsets.all(12), children: [
       Card(child: ListTile(title: const Text('Application settings'), subtitle: Text('Support phone: ${s?.s('supportPhone') ?? '-'}\nSupport email: ${s?.s('supportEmail') ?? '-'}\nMaintenance: ${s?.b('maintenance') ?? false}'), trailing: const Icon(Icons.edit), onTap: () async {
         final v = await showFormSheet(context, 'Settings', const [FieldSpec('supportPhone', 'Support phone'), FieldSpec('supportEmail', 'Support email'), FieldSpec('maintenance', 'Maintenance mode', kind: FK.flag)], initial: s?.d ?? const {});
         if (v != null && context.mounted) await act(context, () => fs.set('app_settings', 'general', v), ok: 'Saved.');

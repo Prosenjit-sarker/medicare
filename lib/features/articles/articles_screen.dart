@@ -48,7 +48,7 @@ class ArticleDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(a.s('category'))),
-      body: ListView(padding: const EdgeInsets.all(20), children: [
+      body: ListView(padding: const EdgeInsets.all(12), children: [
         if (a.s('imageUrl').isNotEmpty) ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(a.s('imageUrl'), errorBuilder: (_, _, _) => const SizedBox.shrink())),
         const SizedBox(height: 12),
         Text(a.s('title'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
